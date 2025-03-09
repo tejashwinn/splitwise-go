@@ -10,8 +10,8 @@ import (
 	"github.com/gorilla/mux"
 	config "github.com/tejashwinn/splitwise/configs"
 	"github.com/tejashwinn/splitwise/handlers"
-	"github.com/tejashwinn/splitwise/middlewares"
-	"github.com/tejashwinn/splitwise/repositories"
+	middlewares "github.com/tejashwinn/splitwise/middleware"
+	repositories "github.com/tejashwinn/splitwise/repos"
 	"github.com/tejashwinn/splitwise/routes"
 	"github.com/tejashwinn/splitwise/types"
 	"github.com/tejashwinn/splitwise/util"
@@ -50,11 +50,21 @@ func main() {
 		fx.Provide(
 			config.LoadConfig,
 			config.ConnectDB,
-			handlers.NewUserHandler,
+
 			repositories.NewUserRepository,
-			routes.SetupRouter,
+			repositories.NewCurrencyRepository,
+			repositories.NewGroupRepository,
+			repositories.NewGroupUserMapRepository,
+
 			middlewares.NewAuthMiddleware,
+
 			util.NewJwtUtil,
+
+			handlers.NewUserHandler,
+			handlers.NewCurrencyHandler,
+			handlers.NewGroupHandler,
+
+			routes.SetupRouter,
 		),
 		fx.Invoke(StartServer),
 	)

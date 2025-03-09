@@ -1,32 +1,30 @@
 package routes
 
 import (
-	"net/http"
-
 	"github.com/gorilla/mux"
 	"github.com/tejashwinn/splitwise/handlers"
-	"github.com/tejashwinn/splitwise/middlewares"
+	middlewares "github.com/tejashwinn/splitwise/middleware"
 )
 
 func SetupRouter(
-	authMiddleware *middlewares.AuthMiddleware,
-	userHandler *handlers.UserHandler,
+	auth *middlewares.AuthMiddleware,
+	userH *handlers.UserHandler,
+	currencyH *handlers.CurrencyHandler,
+	groupH *handlers.GroupHandler,
 ) *mux.Router {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/api/v1/users", userHandler.GetUsers).Methods("GET")
-	r.HandleFunc("/api/v1/users", userHandler.CreateUser).Methods("POST")
-	r.HandleFunc("/api/v1/users/signup", userHandler.CreateUser).Methods("POST")
-	r.HandleFunc("/api/v1/users/login", userHandler.Login).Methods("POST")
-	r.Handle(
-		"/api/v1/users/whoami",
-		authMiddleware.AuthenticateAndSetUserId(
-			http.HandlerFunc(userHandler.WhoAmI),
-		),
-	).Methods("GET")
-
+	r.HandleFunc("/api/v1/users/signup", userH.CreateUser).Methods("POST")
+	r.HandleFunc("/api/v1/users/login", userH.Login).Methods("POST")
 	r.HandleFunc("/api/v1/health", handlers.Health).Methods("GET")
 	r.HandleFunc("/api/v1/ping", handlers.Ping).Methods("GET")
+
+	protected := r.PathPrefix("/api/v1").Subrouter()
+	protected.Use(auth.AuthenticateAndSetUserId)
+
+	protected.HandleFunc("/users/whoami", userH.WhoAmI).Methods("GET")
+	protected.HandleFunc("/currencies", currencyH.ListCurrencies).Methods("GET")
+	protected.HandleFunc("/groups", groupH.CreateGroup).Methods("POST")
 	return r
 }

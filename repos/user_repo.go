@@ -7,11 +7,11 @@ import (
 )
 
 type UserRepo interface {
-	GetAllUsers(
+	FindAll(
 		ctx context.Context,
 	) ([]types.User, error)
 
-	InsertOneUser(
+	Save(
 		ctx context.Context,
 		user *types.User,
 	) (*types.User, error)
@@ -23,6 +23,6 @@ type UserRepo interface {
 
 	FindById(
 		ctx context.Context,
-		id int,
+		id int64,
 	) (*types.User, error)
 }

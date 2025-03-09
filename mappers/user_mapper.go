@@ -15,7 +15,7 @@ func CreateReqToModel(req *types.UserReq) (*types.User, error) {
 	}, nil
 }
 
-func MapUserRows(rows *sql.Rows) (*types.User, error) {
+func MapRowsToUser(rows *sql.Rows) (*types.User, error) {
 	user := &types.User{}
 	if err := rows.Scan(
 		&user.Id,
@@ -31,7 +31,7 @@ func MapUserRows(rows *sql.Rows) (*types.User, error) {
 	return user, nil
 }
 
-func MapUserToUserRe(user *types.User) (*types.UserRes, error) {
+func MapUserToUserRes(user *types.User) (*types.UserRes, error) {
 	return &types.UserRes{
 		Id:        user.Id,
 		Name:      user.Name,
@@ -41,7 +41,7 @@ func MapUserToUserRe(user *types.User) (*types.UserRes, error) {
 	}, nil
 }
 
-func MapUserRow(row *sql.Row) (*types.User, error) {
+func MapRowToUser(row *sql.Row) (*types.User, error) {
 	user := &types.User{}
 	if err := row.Scan(
 		&user.Id,

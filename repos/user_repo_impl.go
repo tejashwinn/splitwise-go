@@ -19,7 +19,7 @@ func NewUserRepository(db *sql.DB) UserRepo {
 	return &UserRepoImpl{DB: db}
 }
 
-func (repo *UserRepoImpl) GetAllUsers(
+func (repo *UserRepoImpl) FindAll(
 	ctx context.Context,
 ) ([]types.User, error) {
 	query := `
@@ -39,7 +39,7 @@ func (repo *UserRepoImpl) GetAllUsers(
 	defer rows.Close()
 	users := []types.User{}
 	for rows.Next() {
-		user, err := mappers.MapUserRows(rows)
+		user, err := mappers.MapRowsToUser(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -48,7 +48,7 @@ func (repo *UserRepoImpl) GetAllUsers(
 	return users, nil
 }
 
-func (repo *UserRepoImpl) InsertOneUser(
+func (repo *UserRepoImpl) Save(
 	ctx context.Context,
 	user *types.User,
 ) (*types.User, error) {
@@ -111,7 +111,7 @@ func (repo *UserRepoImpl) FindByEmailOrUsername(
 		log.Println(row.Err())
 		return nil, errors.New("Unable to find user")
 	}
-	user, err := mappers.MapUserRow(row)
+	user, err := mappers.MapRowToUser(row)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("Unable to map user")
@@ -121,7 +121,7 @@ func (repo *UserRepoImpl) FindByEmailOrUsername(
 
 func (repo *UserRepoImpl) FindById(
 	ctx context.Context,
-	id int,
+	id int64,
 ) (*types.User, error) {
 	query := `
 		SELECT OBJECT_ID,
@@ -145,7 +145,7 @@ func (repo *UserRepoImpl) FindById(
 		log.Println(row.Err())
 		return nil, errors.New("Unable to find user")
 	}
-	user, err := mappers.MapUserRow(row)
+	user, err := mappers.MapRowToUser(row)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("Unable to map user")

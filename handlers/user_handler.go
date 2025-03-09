@@ -11,25 +11,25 @@ import (
 
 	"github.com/tejashwinn/splitwise/constants"
 	"github.com/tejashwinn/splitwise/mappers"
-	"github.com/tejashwinn/splitwise/repositories"
+	repositories "github.com/tejashwinn/splitwise/repos"
 	"github.com/tejashwinn/splitwise/types"
 	"github.com/tejashwinn/splitwise/util"
 )
 
 type UserHandler struct {
-	Repo    repositories.UserRepo
-	JwtUtil util.JwtUtil
+	UserRepo repositories.UserRepo
+	JwtUtil  util.JwtUtil
 }
 
 func NewUserHandler(
-	repo repositories.UserRepo,
+	userRepo repositories.UserRepo,
 	jwtUtil *util.JwtUtil,
 ) *UserHandler {
-	return &UserHandler{Repo: repo, JwtUtil: *jwtUtil}
+	return &UserHandler{UserRepo: userRepo, JwtUtil: *jwtUtil}
 }
 
-func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := h.Repo.GetAllUsers(context.Background())
+func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.UserRepo.FindAll(context.Background())
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Failed to fetch users", http.StatusInternalServerError)
@@ -37,7 +37,7 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	usersRes := []types.UserRes{}
 	for _, user := range users {
-		userRes, err := mappers.MapUserToUserRe(
+		userRes, err := mappers.MapUserToUserRes(
 			&user,
 		)
 		if err != nil {
@@ -73,7 +73,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := mappers.CreateReqToModel(&req)
 
-	user, err = h.Repo.InsertOneUser(context.Background(), user)
+	user, err = h.UserRepo.Save(context.Background(), user)
 	if err != nil {
 		http.Error(w, "Unable to  create user", http.StatusConflict)
 		return
@@ -105,7 +105,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.Repo.FindByEmailOrUsername(context.Background(), req.User)
+	user, err := h.UserRepo.FindByEmailOrUsername(context.Background(), req.User)
 	if err != nil || !util.CheckPasswordHash(req.Password, user.Password) {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
@@ -125,17 +125,21 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) WhoAmI(w http.ResponseWriter, r *http.Request) {
-	userId, err := strconv.Atoi(fmt.Sprint(r.Context().Value(constants.UserId)))
+	userId, err := strconv.ParseInt(
+		fmt.Sprint(r.Context().Value(constants.UserId)),
+		10,
+		64,
+	)
 	if err != nil {
 		http.Error(w, "user not found", http.StatusNotFound)
 		return
 	}
-	user, err := h.Repo.FindById(context.Background(), userId)
+	user, err := h.UserRepo.FindById(context.Background(), userId)
 	if err != nil {
 		http.Error(w, "user not found", http.StatusNotFound)
 		return
 	}
-	userRes, err := mappers.MapUserToUserRe(user)
+	userRes, err := mappers.MapUserToUserRes(user)
 	if err != nil {
 		http.Error(w, "unable to map user", http.StatusInternalServerError)
 		return

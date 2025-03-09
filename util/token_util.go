@@ -1,11 +1,14 @@
 package util
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/tejashwinn/splitwise/constants"
 	"github.com/tejashwinn/splitwise/types"
 )
 
@@ -84,4 +87,13 @@ func (jwtUtil *JwtUtil) RefreshToken(refreshTokenString string) (string, error) 
 	}
 	newAccessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
 	return newAccessToken.SignedString(jwtUtil.secretKey)
+}
+
+func (JwtUtil *JwtUtil) GetUserId(ctx context.Context) (int64, error) {
+	return strconv.ParseInt(
+		fmt.Sprint(ctx.Value(constants.UserId)),
+		10,
+		64,
+	)
+
 }
