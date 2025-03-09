@@ -3,6 +3,8 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strconv"
 
 	"log"
 	"net/http"
@@ -120,4 +122,24 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set(constants.ContentType, constants.ApplicationJson)
 	json.NewEncoder(w).Encode(token)
+}
+
+func (h *UserHandler) WhoAmI(w http.ResponseWriter, r *http.Request) {
+	userId, err := strconv.Atoi(fmt.Sprint(r.Context().Value(constants.UserId)))
+	if err != nil {
+		http.Error(w, "user not found", http.StatusNotFound)
+		return
+	}
+	user, err := h.Repo.FindById(context.Background(), userId)
+	if err != nil {
+		http.Error(w, "user not found", http.StatusNotFound)
+		return
+	}
+	userRes, err := mappers.MapUserToUserRe(user)
+	if err != nil {
+		http.Error(w, "unable to map user", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set(constants.ContentType, constants.ApplicationJson)
+	json.NewEncoder(w).Encode(userRes)
 }

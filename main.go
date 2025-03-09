@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	config "github.com/tejashwinn/splitwise/configs"
 	"github.com/tejashwinn/splitwise/handlers"
+	"github.com/tejashwinn/splitwise/middlewares"
 	"github.com/tejashwinn/splitwise/repositories"
 	"github.com/tejashwinn/splitwise/routes"
 	"github.com/tejashwinn/splitwise/types"
@@ -52,6 +53,7 @@ func main() {
 			handlers.NewUserHandler,
 			repositories.NewUserRepository,
 			routes.SetupRouter,
+			middlewares.NewAuthMiddleware,
 			util.NewJwtUtil,
 		),
 		fx.Invoke(StartServer),

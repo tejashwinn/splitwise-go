@@ -26,11 +26,9 @@ func NewJwtUtil(cfg *types.Config) *JwtUtil {
 }
 
 func (jwtUtil *JwtUtil) GenerateToken(user *types.User) (string, string, error) {
-	// Set token expiration times
 	accessTokenExpiry := time.Now().Add(jwtUtil.jwtAccessTokenExpMin * time.Minute)
 	refreshTokenExpiry := time.Now().Add(jwtUtil.jwtRefreshTokenExpHour * time.Hour)
 
-	// Create access token
 	accessClaims := jwt.MapClaims{
 		"sub": user.Id,
 		"exp": accessTokenExpiry.Unix(),
@@ -42,7 +40,6 @@ func (jwtUtil *JwtUtil) GenerateToken(user *types.User) (string, string, error) 
 		return "", "", err
 	}
 
-	// Create refresh token
 	refreshClaims := jwt.MapClaims{
 		"sub": user.Id,
 		"exp": refreshTokenExpiry.Unix(),
@@ -56,29 +53,22 @@ func (jwtUtil *JwtUtil) GenerateToken(user *types.User) (string, string, error) 
 	return accessTokenString, refreshTokenString, nil
 }
 
-func (jwtUtil *JwtUtil) VerifyToken(tokenString string) (string, error) {
+func (jwtUtil *JwtUtil) VerifyToken(tokenString string) (any, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")
 		}
 		return jwtUtil.secretKey, nil
 	})
-
 	if err != nil || !token.Valid {
-		return "", fmt.Errorf("invalid token")
+		return 0, fmt.Errorf("invalid tok1en")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", fmt.Errorf("invalid token claims")
+		return 0, fmt.Errorf("invalid token claims")
 	}
-
-	userID, ok := claims["sub"].(string)
-	if !ok {
-		return "", fmt.Errorf("invalid user ID")
-	}
-
-	return userID, nil
+	return claims["sub"], nil
 }
 
 func (jwtUtil *JwtUtil) RefreshToken(refreshTokenString string) (string, error) {

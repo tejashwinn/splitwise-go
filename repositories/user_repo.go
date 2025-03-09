@@ -20,4 +20,9 @@ type UserRepo interface {
 		ctx context.Context,
 		usernameEmail string,
 	) (*types.User, error)
+
+	FindById(
+		ctx context.Context,
+		id int,
+	) (*types.User, error)
 }

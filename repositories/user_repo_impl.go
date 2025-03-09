@@ -118,3 +118,37 @@ func (repo *UserRepoImpl) FindByEmailOrUsername(
 	}
 	return user, nil
 }
+
+func (repo *UserRepoImpl) FindById(
+	ctx context.Context,
+	id int,
+) (*types.User, error) {
+	query := `
+		SELECT OBJECT_ID,
+			USR_NAME,
+			USR_USERNAME,
+			USR_PASSWORD,
+			USR_EMAIL,
+			CREATED_AT,
+			UPDATED_AT
+		FROM SW_USR
+		WHERE OBJECT_ID = $1
+	`
+
+	row := repo.DB.QueryRowContext(
+		ctx,
+		query,
+		id,
+	)
+
+	if row.Err() != nil {
+		log.Println(row.Err())
+		return nil, errors.New("Unable to find user")
+	}
+	user, err := mappers.MapUserRow(row)
+	if err != nil {
+		log.Println(err)
+		return nil, errors.New("Unable to map user")
+	}
+	return user, nil
+}
