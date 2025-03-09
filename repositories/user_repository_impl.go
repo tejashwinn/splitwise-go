@@ -76,7 +76,6 @@ func (repo *UserRepositoryImpl) InsertOneUser(
 		return *user, errors.New("error during insertion")
 	}
 	row.Scan(&user.Id)
-
 	return *user, nil
 }
 

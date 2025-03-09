@@ -7,6 +7,14 @@ import (
 type Config struct {
 	Db     DbConfig
 	Server ServerConfig
+	Jwt    JwtConfig
+}
+
+type JwtConfig struct {
+	SecretKey              []byte
+	Issuer                 string
+	JwtAccessTokenExpMin   int32
+	JwtRefreshTokenExpHour int32
 }
 
 type ServerConfig struct {
@@ -21,8 +29,13 @@ type User struct {
 	Id        int64     `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
-	Password  string    `json:"password"`
+	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"createdAt"`
+}
+
+type TokenResposne struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type Transaction struct {

@@ -9,9 +9,11 @@ import (
 
 	"github.com/gorilla/mux"
 	config "github.com/tejashwinn/splitwise/configurations"
+	"github.com/tejashwinn/splitwise/handlers"
 	"github.com/tejashwinn/splitwise/repositories"
 	"github.com/tejashwinn/splitwise/routes"
 	"github.com/tejashwinn/splitwise/types"
+	"github.com/tejashwinn/splitwise/util"
 	"go.uber.org/fx"
 )
 
@@ -47,8 +49,10 @@ func main() {
 		fx.Provide(
 			config.LoadConfig,
 			config.ConnectDB,
+			handlers.NewUserHandler,
 			repositories.NewUserRepository,
 			routes.SetupRouter,
+			util.NewJwtUtil,
 		),
 		fx.Invoke(StartServer),
 	)

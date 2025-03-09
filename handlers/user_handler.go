@@ -3,21 +3,26 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"errors"
+
 	"log"
 	"net/http"
 
 	"github.com/tejashwinn/splitwise/constants"
 	"github.com/tejashwinn/splitwise/repositories"
 	"github.com/tejashwinn/splitwise/types"
+	"github.com/tejashwinn/splitwise/util"
 )
 
 type UserHandler struct {
-	Repo repositories.UserRepository
+	Repo    repositories.UserRepository
+	JwtUtil util.JwtUtil
 }
 
-func NewUserHandler(repo repositories.UserRepository) *UserHandler {
-	return &UserHandler{Repo: repo}
+func NewUserHandler(
+	repo repositories.UserRepository,
+	jwtUtil *util.JwtUtil,
+) *UserHandler {
+	return &UserHandler{Repo: repo, JwtUtil: *jwtUtil}
 }
 
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -38,29 +43,36 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to parse request", http.StatusBadRequest)
 		return
 	}
-	err = validateReq(&user)
+	err = util.ValidateCreateUser(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	user, err = h.Repo.InsertOneUser(context.Background(), &user)
+	user.Password, err = util.HashPassword(user.Password)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusConflict)
+		log.Printf("Unable to hash password: %s with error: %s",
+			user.Password,
+			err.Error(),
+		)
+		http.Error(w, "Unable to create user", http.StatusConflict)
 		return
 	}
-	w.Header().Set(constants.ContentType, constants.ApplicationJson)
-	json.NewEncoder(w).Encode(user)
-}
 
-func validateReq(req *types.User) error {
-	if len(req.Name) > 255 {
-		return errors.New("title length cannot be greater than 100 characters")
+	user, err = h.Repo.InsertOneUser(context.Background(), &user)
+	if err != nil {
+		http.Error(w, "Unable to  create user", http.StatusConflict)
+		return
 	}
-	if len(req.Email) > 255 {
-		return errors.New("content length cannot be greater than 1000 characters")
+
+	accessToken, refreshToken, err := h.JwtUtil.GenerateToken(&user)
+	if err != nil {
+		http.Error(w, "Unable to generate token", http.StatusConflict)
+		return
 	}
-	if len(req.Password) > 255 {
-		return errors.New("content length cannot be greater than 1000 characters")
+	token := &types.TokenResposne{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
-	return nil
+	w.Header().Set(constants.ContentType, constants.ApplicationJson)
+	json.NewEncoder(w).Encode(token)
 }
