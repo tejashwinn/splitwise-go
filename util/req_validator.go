@@ -18,3 +18,13 @@ func ValidateCreateUser(req *types.UserReq) error {
 	}
 	return nil
 }
+
+func ValidateLoginUser(req *types.LoginReq) error {
+	if req.Email == "" {
+		return errors.New("email cannot be empty")
+	}
+	if req.Password == "" {
+		return errors.New("password cannot be empty")
+	}
+	return nil
+}

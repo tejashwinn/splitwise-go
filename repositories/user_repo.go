@@ -15,4 +15,9 @@ type UserRepo interface {
 		ctx context.Context,
 		user *types.User,
 	) (*types.User, error)
+
+	FindByEmail(
+		ctx context.Context,
+		email string,
+	) (*types.User, error)
 }

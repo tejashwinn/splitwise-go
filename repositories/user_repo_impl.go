@@ -79,3 +79,35 @@ func (repo *UserRepoImpl) InsertOneUser(
 	row.Scan(&user.Id)
 	return user, nil
 }
+
+func (repo *UserRepoImpl) FindByEmail(
+	ctx context.Context,
+	email string,
+) (*types.User, error) {
+	query := `
+		SELECT OBJECT_ID,
+			USR_NAME,
+			USR_PASSWORD,
+			USR_EMAIL,
+			CREATED_AT
+		FROM SW_USR
+		WHERE USR_EMAIL = $1
+	`
+
+	row := repo.DB.QueryRowContext(
+		ctx,
+		query,
+		email,
+	)
+
+	if row.Err() != nil {
+		log.Println(row.Err())
+		return nil, errors.New("Unable to find user")
+	}
+	user, err := mappers.MapUserRow(row)
+	if err != nil {
+		log.Println(err)
+		return nil, errors.New("Unable to map user")
+	}
+	return user, nil
+}

@@ -89,3 +89,35 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(constants.ContentType, constants.ApplicationJson)
 	json.NewEncoder(w).Encode(token)
 }
+
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var req types.LoginReq
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Unable to parse request", http.StatusBadRequest)
+		return
+	}
+	err = util.ValidateLoginUser(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.Repo.FindByEmail(context.Background(), req.Email)
+	if err != nil || !util.CheckPasswordHash(req.Password, user.Password) {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	accessToken, refreshToken, err := h.JwtUtil.GenerateToken(user)
+	if err != nil {
+		http.Error(w, "Unable to generate token", http.StatusConflict)
+		return
+	}
+	token := &types.TokenRes{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+	w.Header().Set(constants.ContentType, constants.ApplicationJson)
+	json.NewEncoder(w).Encode(token)
+}
