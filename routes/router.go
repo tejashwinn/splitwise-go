@@ -3,11 +3,11 @@ package routes
 import (
 	"github.com/gorilla/mux"
 	"github.com/tejashwinn/splitwise/handlers"
-	middlewares "github.com/tejashwinn/splitwise/middleware"
+	"github.com/tejashwinn/splitwise/middleware"
 )
 
 func SetupRouter(
-	auth *middlewares.AuthMiddleware,
+	auth *middleware.AuthMiddleware,
 	userH *handlers.UserHandler,
 	currencyH *handlers.CurrencyHandler,
 	groupH *handlers.GroupHandler,

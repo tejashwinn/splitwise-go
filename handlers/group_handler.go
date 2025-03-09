@@ -8,23 +8,23 @@ import (
 
 	"github.com/tejashwinn/splitwise/constants"
 	"github.com/tejashwinn/splitwise/mappers"
-	repositories "github.com/tejashwinn/splitwise/repos"
+	"github.com/tejashwinn/splitwise/repos"
 	"github.com/tejashwinn/splitwise/types"
-	"github.com/tejashwinn/splitwise/util"
+	"github.com/tejashwinn/splitwise/utils"
 )
 
 type GroupHandler struct {
-	UserRepo     repositories.UserRepo
-	GroupRepo    repositories.GroupRepo
-	CurrencyRepo repositories.CurrencyRepo
-	JwtUtil      util.JwtUtil
+	UserRepo     repos.UserRepo
+	GroupRepo    repos.GroupRepo
+	CurrencyRepo repos.CurrencyRepo
+	JwtUtil      utils.JwtUtil
 }
 
 func NewGroupHandler(
-	userRepo repositories.UserRepo,
-	groupRepo repositories.GroupRepo,
-	currencyRepo repositories.CurrencyRepo,
-	jwtUtil *util.JwtUtil,
+	userRepo repos.UserRepo,
+	groupRepo repos.GroupRepo,
+	currencyRepo repos.CurrencyRepo,
+	jwtUtil *utils.JwtUtil,
 ) *GroupHandler {
 	return &GroupHandler{UserRepo: userRepo, GroupRepo: groupRepo, CurrencyRepo: currencyRepo, JwtUtil: *jwtUtil}
 }

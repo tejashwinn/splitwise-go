@@ -11,19 +11,19 @@ import (
 
 	"github.com/tejashwinn/splitwise/constants"
 	"github.com/tejashwinn/splitwise/mappers"
-	repositories "github.com/tejashwinn/splitwise/repos"
+	"github.com/tejashwinn/splitwise/repos"
 	"github.com/tejashwinn/splitwise/types"
-	"github.com/tejashwinn/splitwise/util"
+	"github.com/tejashwinn/splitwise/utils"
 )
 
 type UserHandler struct {
-	UserRepo repositories.UserRepo
-	JwtUtil  util.JwtUtil
+	UserRepo repos.UserRepo
+	JwtUtil  utils.JwtUtil
 }
 
 func NewUserHandler(
-	userRepo repositories.UserRepo,
-	jwtUtil *util.JwtUtil,
+	userRepo repos.UserRepo,
+	jwtUtil *utils.JwtUtil,
 ) *UserHandler {
 	return &UserHandler{UserRepo: userRepo, JwtUtil: *jwtUtil}
 }
@@ -57,12 +57,12 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to parse request", http.StatusBadRequest)
 		return
 	}
-	err = util.ValidateCreateUser(&req)
+	err = utils.ValidateCreateUser(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	req.Password, err = util.HashPassword(req.Password)
+	req.Password, err = utils.HashPassword(req.Password)
 	if err != nil {
 		log.Printf("Unable to hash password: %s with error: %s",
 			req.Password,
@@ -99,14 +99,14 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to parse request", http.StatusBadRequest)
 		return
 	}
-	err = util.ValidateLoginUser(&req)
+	err = utils.ValidateLoginUser(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	user, err := h.UserRepo.FindByEmailOrUsername(context.Background(), req.User)
-	if err != nil || !util.CheckPasswordHash(req.Password, user.Password) {
+	if err != nil || !utils.CheckPasswordHash(req.Password, user.Password) {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}

@@ -1,4 +1,4 @@
-package middlewares
+package middleware
 
 import (
 	"context"
@@ -7,15 +7,15 @@ import (
 	"strings"
 
 	"github.com/tejashwinn/splitwise/constants"
-	"github.com/tejashwinn/splitwise/util"
+	"github.com/tejashwinn/splitwise/utils"
 )
 
 type AuthMiddleware struct {
-	JwtUtil util.JwtUtil
+	JwtUtil utils.JwtUtil
 }
 
 func NewAuthMiddleware(
-	jwtUtil *util.JwtUtil,
+	jwtUtil *utils.JwtUtil,
 ) *AuthMiddleware {
 	return &AuthMiddleware{JwtUtil: *jwtUtil}
 }

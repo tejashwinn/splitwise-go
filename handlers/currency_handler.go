@@ -8,19 +8,19 @@ import (
 
 	"github.com/tejashwinn/splitwise/constants"
 	"github.com/tejashwinn/splitwise/mappers"
-	repositories "github.com/tejashwinn/splitwise/repos"
+	"github.com/tejashwinn/splitwise/repos"
 	"github.com/tejashwinn/splitwise/types"
-	"github.com/tejashwinn/splitwise/util"
+	"github.com/tejashwinn/splitwise/utils"
 )
 
 type CurrencyHandler struct {
-	Repo    repositories.CurrencyRepo
-	JwtUtil util.JwtUtil
+	Repo    repos.CurrencyRepo
+	JwtUtil utils.JwtUtil
 }
 
 func NewCurrencyHandler(
-	repo repositories.CurrencyRepo,
-	jwtUtil *util.JwtUtil,
+	repo repos.CurrencyRepo,
+	jwtUtil *utils.JwtUtil,
 ) *CurrencyHandler {
 	return &CurrencyHandler{Repo: repo, JwtUtil: *jwtUtil}
 }

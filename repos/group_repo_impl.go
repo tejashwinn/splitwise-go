@@ -1,4 +1,4 @@
-package repositories
+package repos
 
 import (
 	"context"
@@ -8,17 +8,17 @@ import (
 	"time"
 
 	"github.com/tejashwinn/splitwise/types"
-	"github.com/tejashwinn/splitwise/util"
+	"github.com/tejashwinn/splitwise/utils"
 )
 
 type GroupRepoImpl struct {
 	DB      *sql.DB
-	JwtUtil *util.JwtUtil
+	JwtUtil *utils.JwtUtil
 }
 
 func NewGroupRepository(
 	db *sql.DB,
-	jwtUtil *util.JwtUtil,
+	jwtUtil *utils.JwtUtil,
 ) GroupRepo {
 	return &GroupRepoImpl{DB: db, JwtUtil: jwtUtil}
 }

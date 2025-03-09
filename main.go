@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	config "github.com/tejashwinn/splitwise/configs"
+	"github.com/tejashwinn/splitwise/configs"
 	"github.com/tejashwinn/splitwise/handlers"
-	middlewares "github.com/tejashwinn/splitwise/middleware"
-	repositories "github.com/tejashwinn/splitwise/repos"
+	"github.com/tejashwinn/splitwise/middleware"
+	"github.com/tejashwinn/splitwise/repos"
 	"github.com/tejashwinn/splitwise/routes"
 	"github.com/tejashwinn/splitwise/types"
-	"github.com/tejashwinn/splitwise/util"
+	"github.com/tejashwinn/splitwise/utils"
 	"go.uber.org/fx"
 )
 
@@ -48,17 +48,17 @@ func StartServer(
 func main() {
 	app := fx.New(
 		fx.Provide(
-			config.LoadConfig,
-			config.ConnectDB,
+			configs.LoadConfig,
+			configs.ConnectDB,
 
-			repositories.NewUserRepository,
-			repositories.NewCurrencyRepository,
-			repositories.NewGroupRepository,
-			repositories.NewGroupUserMapRepository,
+			repos.NewUserRepository,
+			repos.NewCurrencyRepository,
+			repos.NewGroupRepository,
+			repos.NewGroupUserMapRepository,
 
-			middlewares.NewAuthMiddleware,
+			middleware.NewAuthMiddleware,
 
-			util.NewJwtUtil,
+			utils.NewJwtUtil,
 
 			handlers.NewUserHandler,
 			handlers.NewCurrencyHandler,
