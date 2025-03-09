@@ -45,10 +45,10 @@ func StartServer(
 func main() {
 	app := fx.New(
 		fx.Provide(
-			config.LoadConfig,              // Load config
-			config.ConnectDB,               // Connect to DB
-			repositories.NewUserRepository, // Inject UserRepository
-			routes.SetupRouter,             // Inject Router
+			config.LoadConfig,
+			config.ConnectDB,
+			repositories.NewUserRepository,
+			routes.SetupRouter,
 		),
 		fx.Invoke(StartServer),
 	)
