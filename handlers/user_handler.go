@@ -8,18 +8,19 @@ import (
 	"net/http"
 
 	"github.com/tejashwinn/splitwise/constants"
+	"github.com/tejashwinn/splitwise/mappers"
 	"github.com/tejashwinn/splitwise/repositories"
 	"github.com/tejashwinn/splitwise/types"
 	"github.com/tejashwinn/splitwise/util"
 )
 
 type UserHandler struct {
-	Repo    repositories.UserRepository
+	Repo    repositories.UserRepo
 	JwtUtil util.JwtUtil
 }
 
 func NewUserHandler(
-	repo repositories.UserRepository,
+	repo repositories.UserRepo,
 	jwtUtil *util.JwtUtil,
 ) *UserHandler {
 	return &UserHandler{Repo: repo, JwtUtil: *jwtUtil}
@@ -32,44 +33,56 @@ func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to fetch users", http.StatusInternalServerError)
 		return
 	}
+	usersRes := []types.UserRes{}
+	for _, user := range users {
+		userRes, err := mappers.MapUserToUserRe(
+			&user,
+		)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Failed to fetch users", http.StatusInternalServerError)
+		}
+		usersRes = append(usersRes, *userRes)
+	}
 	w.Header().Set(constants.ContentType, constants.ApplicationJson)
-	json.NewEncoder(w).Encode(users)
+	json.NewEncoder(w).Encode(usersRes)
 }
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user types.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var req types.UserReq
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, "Unable to parse request", http.StatusBadRequest)
 		return
 	}
-	err = util.ValidateCreateUser(&user)
+	err = util.ValidateCreateUser(&req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	user.Password, err = util.HashPassword(user.Password)
+	req.Password, err = util.HashPassword(req.Password)
 	if err != nil {
 		log.Printf("Unable to hash password: %s with error: %s",
-			user.Password,
+			req.Password,
 			err.Error(),
 		)
 		http.Error(w, "Unable to create user", http.StatusConflict)
 		return
 	}
+	user, err := mappers.CreateReqToModel(&req)
 
-	user, err = h.Repo.InsertOneUser(context.Background(), &user)
+	user, err = h.Repo.InsertOneUser(context.Background(), user)
 	if err != nil {
 		http.Error(w, "Unable to  create user", http.StatusConflict)
 		return
 	}
 
-	accessToken, refreshToken, err := h.JwtUtil.GenerateToken(&user)
+	accessToken, refreshToken, err := h.JwtUtil.GenerateToken(user)
 	if err != nil {
 		http.Error(w, "Unable to generate token", http.StatusConflict)
 		return
 	}
-	token := &types.TokenResposne{
+	token := &types.TokenRes{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}

@@ -6,7 +6,7 @@ import (
 	"github.com/tejashwinn/splitwise/types"
 )
 
-type UserRepository interface {
+type UserRepo interface {
 	GetAllUsers(
 		ctx context.Context,
 	) ([]types.User, error)
@@ -14,5 +14,5 @@ type UserRepository interface {
 	InsertOneUser(
 		ctx context.Context,
 		user *types.User,
-	) (types.User, error)
+	) (*types.User, error)
 }

@@ -7,18 +7,19 @@ import (
 	"log"
 	"time"
 
+	"github.com/tejashwinn/splitwise/mappers"
 	"github.com/tejashwinn/splitwise/types"
 )
 
-type UserRepositoryImpl struct {
+type UserRepoImpl struct {
 	DB *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) UserRepository {
-	return &UserRepositoryImpl{DB: db}
+func NewUserRepository(db *sql.DB) UserRepo {
+	return &UserRepoImpl{DB: db}
 }
 
-func (repo *UserRepositoryImpl) GetAllUsers(
+func (repo *UserRepoImpl) GetAllUsers(
 	ctx context.Context,
 ) ([]types.User, error) {
 	query := `
@@ -37,19 +38,19 @@ func (repo *UserRepositoryImpl) GetAllUsers(
 	defer rows.Close()
 	users := []types.User{}
 	for rows.Next() {
-		user, err := mapUserRows(rows)
+		user, err := mappers.MapUserRows(rows)
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, user)
+		users = append(users, *user)
 	}
 	return users, nil
 }
 
-func (repo *UserRepositoryImpl) InsertOneUser(
+func (repo *UserRepoImpl) InsertOneUser(
 	ctx context.Context,
 	user *types.User,
-) (types.User, error) {
+) (*types.User, error) {
 	query := `
 		INSERT INTO SW_USR (
 			OBJECT_ID,
@@ -73,22 +74,8 @@ func (repo *UserRepositoryImpl) InsertOneUser(
 
 	if row.Err() != nil {
 		log.Println(row.Err())
-		return *user, errors.New("error during insertion")
+		return user, errors.New("error during insertion")
 	}
 	row.Scan(&user.Id)
-	return *user, nil
-}
-
-func mapUserRows(rows *sql.Rows) (types.User, error) {
-	var user types.User
-	if err := rows.Scan(
-		&user.Id,
-		&user.Name,
-		&user.Password,
-		&user.Email,
-		&user.CreatedAt,
-	); err != nil {
-		return user, err
-	}
 	return user, nil
 }

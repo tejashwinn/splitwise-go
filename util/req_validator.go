@@ -6,7 +6,7 @@ import (
 	"github.com/tejashwinn/splitwise/types"
 )
 
-func ValidateCreateUser(req *types.User) error {
+func ValidateCreateUser(req *types.UserReq) error {
 	if len(req.Name) > 255 {
 		return errors.New("title length cannot be greater than 100 characters")
 	}

@@ -5,7 +5,6 @@ import (
 	"github.com/tejashwinn/splitwise/handlers"
 )
 
-// SetupRouter initializes the router with handlers
 func SetupRouter(userHandler *handlers.UserHandler) *mux.Router {
 	r := mux.NewRouter()
 

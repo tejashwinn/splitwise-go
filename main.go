@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	config "github.com/tejashwinn/splitwise/configurations"
+	config "github.com/tejashwinn/splitwise/configs"
 	"github.com/tejashwinn/splitwise/handlers"
 	"github.com/tejashwinn/splitwise/repositories"
 	"github.com/tejashwinn/splitwise/routes"
