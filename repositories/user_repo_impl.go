@@ -23,12 +23,13 @@ func (repo *UserRepoImpl) GetAllUsers(
 	ctx context.Context,
 ) ([]types.User, error) {
 	query := `
-		SELECT 
-		OBJECT_ID,
-		USR_NAME,
-		USR_PASSWORD,
-		USR_EMAIL,
-		CREATED_AT
+		SELECT OBJECT_ID,
+			USR_NAME,
+			USR_USERNAME,
+			USR_PASSWORD,
+			USR_EMAIL,
+			CREATED_AT,
+			UPDATED_AT
 		FROM SW_USR
 	`
 	rows, err := repo.DB.QueryContext(ctx, query)
@@ -55,11 +56,12 @@ func (repo *UserRepoImpl) InsertOneUser(
 		INSERT INTO SW_USR (
 			OBJECT_ID,
 			USR_NAME,
+			USR_USERNAME,
 			USR_EMAIL,
 			USR_PASSWORD,
 			CREATED_AT
 		)
-		VALUES (DEFAULT, $1, $2, $3, $4)
+		VALUES (DEFAULT, $1, $2, $3, $4, $5)
 		RETURNING OBJECT_ID
 	`
 	user.CreatedAt = time.Now()
@@ -67,6 +69,7 @@ func (repo *UserRepoImpl) InsertOneUser(
 		ctx,
 		query,
 		user.Name,
+		user.Username,
 		user.Email,
 		user.Password,
 		user.CreatedAt,
@@ -80,24 +83,28 @@ func (repo *UserRepoImpl) InsertOneUser(
 	return user, nil
 }
 
-func (repo *UserRepoImpl) FindByEmail(
+func (repo *UserRepoImpl) FindByEmailOrUsername(
 	ctx context.Context,
-	email string,
+	usernameEmail string,
 ) (*types.User, error) {
 	query := `
 		SELECT OBJECT_ID,
 			USR_NAME,
+			USR_USERNAME,
 			USR_PASSWORD,
 			USR_EMAIL,
-			CREATED_AT
+			CREATED_AT,
+			UPDATED_AT
 		FROM SW_USR
 		WHERE USR_EMAIL = $1
+			OR 
+			USR_USERNAME = $1
 	`
 
 	row := repo.DB.QueryRowContext(
 		ctx,
 		query,
-		email,
+		usernameEmail,
 	)
 
 	if row.Err() != nil {

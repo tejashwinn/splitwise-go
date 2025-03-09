@@ -16,8 +16,8 @@ type UserRepo interface {
 		user *types.User,
 	) (*types.User, error)
 
-	FindByEmail(
+	FindByEmailOrUsername(
 		ctx context.Context,
-		email string,
+		usernameEmail string,
 	) (*types.User, error)
 }

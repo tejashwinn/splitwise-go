@@ -20,8 +20,8 @@ func ValidateCreateUser(req *types.UserReq) error {
 }
 
 func ValidateLoginUser(req *types.LoginReq) error {
-	if req.Email == "" {
-		return errors.New("email cannot be empty")
+	if req.User == "" {
+		return errors.New("email/username cannot be empty")
 	}
 	if req.Password == "" {
 		return errors.New("password cannot be empty")

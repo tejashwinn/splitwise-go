@@ -103,7 +103,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.Repo.FindByEmail(context.Background(), req.Email)
+	user, err := h.Repo.FindByEmailOrUsername(context.Background(), req.User)
 	if err != nil || !util.CheckPasswordHash(req.Password, user.Password) {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
