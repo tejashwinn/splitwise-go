@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	config "github.com/tejashwinn/splitwise/configurations"
@@ -19,11 +20,13 @@ func StartServer(
 	lc fx.Lifecycle,
 	cfg *types.Config,
 	router *mux.Router,
-
 ) {
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%s", cfg.Server.Port),
-		Handler: router,
+		Addr:         fmt.Sprintf(":%s", cfg.Server.Port),
+		Handler:      router,
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
 	}
 
 	lc.Append(fx.Hook{
