@@ -26,5 +26,7 @@ func SetupRouter(
 	protected.HandleFunc("/users/whoami", userH.WhoAmI).Methods("GET")
 	protected.HandleFunc("/currencies", currencyH.ListCurrencies).Methods("GET")
 	protected.HandleFunc("/groups", groupH.CreateGroup).Methods("POST")
+	protected.HandleFunc("/groups/{groupId}/users", groupH.ListGroupUsers).Methods("GET")
+
 	return r
 }

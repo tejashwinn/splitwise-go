@@ -54,7 +54,7 @@ func main() {
 			repos.NewUserRepository,
 			repos.NewCurrencyRepository,
 			repos.NewGroupRepository,
-			repos.NewGroupUserMapRepository,
+			repos.NewGroupUserRepository,
 
 			middleware.NewAuthMiddleware,
 

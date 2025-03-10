@@ -1,8 +1,6 @@
 module github.com/tejashwinn/splitwise
 
-go 1.23.0
-
-toolchain go1.23.7
+go 1.23.7
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.2.1

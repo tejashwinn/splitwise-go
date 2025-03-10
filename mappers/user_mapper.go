@@ -2,6 +2,7 @@ package mappers
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/tejashwinn/splitwise/types"
 )
@@ -39,6 +40,21 @@ func MapUserToUserRes(user *types.User) (*types.UserRes, error) {
 		Email:     user.Email,
 		CreatedAt: user.CreatedAt,
 	}, nil
+}
+
+func MapUsersToUserRes(users []types.User) ([]types.UserRes, error) {
+	usersRes := []types.UserRes{}
+	for _, user := range users {
+		userRes, err := MapUserToUserRes(&user)
+		if err != nil {
+			return nil, errors.New("Unable to map user")
+		}
+		usersRes = append(
+			usersRes,
+			*userRes,
+		)
+	}
+	return usersRes, nil
 }
 
 func MapRowToUser(row *sql.Row) (*types.User, error) {

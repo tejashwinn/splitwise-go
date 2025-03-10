@@ -25,4 +25,9 @@ type UserRepo interface {
 		ctx context.Context,
 		id int64,
 	) (*types.User, error)
+
+	FindByIdIn(
+		ctx context.Context,
+		userIds []int64,
+	) ([]types.User, error)
 }

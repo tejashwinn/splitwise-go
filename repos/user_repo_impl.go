@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/tejashwinn/splitwise/mappers"
 	"github.com/tejashwinn/splitwise/types"
+	"github.com/tejashwinn/splitwise/utils"
 )
 
 type UserRepoImpl struct {
@@ -151,4 +153,43 @@ func (repo *UserRepoImpl) FindById(
 		return nil, errors.New("Unable to map user")
 	}
 	return user, nil
+}
+
+func (repo *UserRepoImpl) FindByIdIn(
+	ctx context.Context,
+	userIds []int64,
+) ([]types.User, error) {
+
+	placeholders, args := utils.GenerateSQLPlaceholders(len(userIds))
+
+	for i, id := range userIds {
+		args[i] = id
+	}
+
+	query := fmt.Sprintf(`
+		SELECT OBJECT_ID,
+			USR_NAME,
+			USR_USERNAME,
+			USR_PASSWORD,
+			USR_EMAIL,
+			CREATED_AT,
+			UPDATED_AT
+		FROM SW_USR
+			WHERE OBJECT_ID IN (%s)
+	`, placeholders)
+
+	rows, err := repo.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	users := []types.User{}
+	for rows.Next() {
+		user, err := mappers.MapRowsToUser(rows)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, *user)
+	}
+	return users, nil
 }

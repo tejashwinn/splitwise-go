@@ -30,3 +30,17 @@ type GroupRes struct {
 	CreatedBy   UserRes     `json:"createdBy"`
 	CreatedAt   time.Time   `json:"createdAt"`
 }
+
+type GroupUser struct {
+	Id        int64     `json:"id"`
+	GroupId   int64     `json:"groupId"`
+	UserId    int64     `json:"userId"`
+	CreatedAt time.Time `json:"createdAt"`
+	CreatedBy int64     `json:"createdBy"`
+}
+
+type AddToGroupReq struct {
+	GroupId   int64 `json:"groupId"`
+	UserId    int64 `json:"userId"`
+	CreatedBy int64 `json:"createdBy"`
+}
